@@ -2,6 +2,7 @@ import {useParams, useLocation} from 'react-router'
 import {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {Link,Route, Switch,useRouteMatch} from 'react-router-dom';
+// import { use } from 'react-query';
 import Price from './Price';
 import Chart from './Chart';
 
