@@ -5,6 +5,8 @@ import {Link,Route, Switch,useRouteMatch} from 'react-router-dom';
 // import { use } from 'react-query';
 import Price from './Price';
 import Chart from './Chart';
+import {useQuery} from 'react-query';
+import {fetchCoin} from '../api';
 
 const Title = styled.h1`
   font-size: 48px;
@@ -142,29 +144,35 @@ interface PriceInfoInterface {
 
 function Coin() {
     //
-    const [loading, setLoading] = useState(true);
-    const [coinDetail, setCoinDetail] = useState<CoinDetailInterface>({} as CoinDetailInterface);
-    const [priceInfo, setPriceInfo] = useState<PriceInfoInterface>({} as PriceInfoInterface);
+    const {coinId} = useParams<Params>();
+    // const [loading, setLoading] = useState(true);
+    // const [coinDetail, setCoinDetail] = useState<CoinDetailInterface>({} as CoinDetailInterface);
+    // const [priceInfo, setPriceInfo] = useState<PriceInfoInterface>({} as PriceInfoInterface);
     const {state} = useLocation<RouteState>();
+    const {isLoading:infoLoading, data:coinDetail} = useQuery<CoinDetailInterface>(["info",coinId],()=>fetchCoin(coinId));
+    const {isLoading:tickersLoading,data:priceInfo} = useQuery<PriceInfoInterface>(["ticker",coinId],()=>fetchCoin(coinId));
+
     const priceMatch  = useRouteMatch("/:coinId/price");
     const chartMatch = useRouteMatch("/:coinId/chart");
 
     // console.log(name)
-    const {coinId} = useParams<Params>();
+
     // console.log(coinId);
-    useEffect(() => {
+    // useEffect(() => {
         //
-        (async () => {
-            //
-            const infoData = await (await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)).json();
-            setCoinDetail(infoData);
-            const priceData = await (await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)).json();
-            setPriceInfo(priceData)
-            setLoading(false);
-            // console.log(infoData)
-            // console.log(priceData)
-        })();
-    }, [coinId]);
+    //     (async () => {
+    //         //
+    //         const infoData = await (await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)).json();
+    //         setCoinDetail(infoData);
+    //         const priceData = await (await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)).json();
+    //         setPriceInfo(priceData)
+    //         setLoading(false);
+    //         // console.log(infoData)
+    //         // console.log(priceData)
+    //     })();
+    // }, [coinId]);
+
+    const loading = infoLoading || tickersLoading;
 
     return (
         <Container>
@@ -215,7 +223,7 @@ function Coin() {
                             <Price/>
                         </Route>
                         <Route path={`/:coinId/chart`}>
-                            <Chart/>
+                            <Chart coinId={coinId}/>
                         </Route>
                     </Switch>
                 </>
